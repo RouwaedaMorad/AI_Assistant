@@ -1,13 +1,14 @@
-import os
 from dotenv import load_dotenv
 from groq import Groq
 import asyncio
+import streamlit as st
 
 # This function loads the environment variables from the .env file
 def load_api_key():
     """Loads the API key from the environment."""
     load_dotenv()  # Load .env variables
-    api_key = os.getenv('GROQ_API_KEY')  # Get API key from environment
+    #api_key = os.getenv('GROQ_API_KEY')  # Get API key from environment
+    api_key = api_key=st.secrets["openai"]["api_key"]
     if api_key:
         print("API key loaded successfully.")
     else:
@@ -24,7 +25,7 @@ def initialize_groq_client(api_key):
     return client
 
 # This function sends a request to the Groq API and returns the completion result
-def generate_completions(client):
+def ask_llm(prompt, client):
     """Generates completions using the Groq client."""
     try:
         completion = client.chat.completions.create(
@@ -32,7 +33,7 @@ def generate_completions(client):
             messages=[
                 {
                     "role": "user",
-                    "content": "Can you generate an example json object describing a fruit?",
+                    "content": str(prompt),
                 }
             ],
             temperature=1,
@@ -56,7 +57,8 @@ async def main():
     api_key = load_api_key()  # Load the API key
     if api_key:
         client = initialize_groq_client(api_key)  # Initialize the Groq client
-        generate_completions(client)  # Generate completions (no async needed here)
+        
+        ask_llm(client)  # Generate completions (no async needed here)
 
 # Run the main async function
 if __name__ == "__main__":
