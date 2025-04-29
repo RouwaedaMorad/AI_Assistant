@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from groq import Groq
 import asyncio
 import streamlit as st
@@ -6,7 +6,7 @@ import streamlit as st
 # This function loads the environment variables from the .env file
 def load_api_key():
     """Loads the API key from the environment."""
-    load_dotenv()  # Load .env variables
+    #load_dotenv()  # Load .env variables
     #api_key = os.getenv('GROQ_API_KEY')  # Get API key from environment
     api_key = api_key=st.secrets["GROQ"]["api_key"]
     if api_key:
