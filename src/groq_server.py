@@ -8,7 +8,7 @@ def load_api_key():
     """Loads the API key from the environment."""
     load_dotenv()  # Load .env variables
     #api_key = os.getenv('GROQ_API_KEY')  # Get API key from environment
-    api_key = api_key=st.secrets["openai"]["api_key"]
+    api_key = api_key=st.secrets["GROQ"]["api_key"]
     if api_key:
         print("API key loaded successfully.")
     else:
@@ -47,6 +47,7 @@ def ask_llm(prompt, client):
         # Process the streamed response using a regular loop instead of async for
         for chunk in completion:
             print(chunk.choices[0].delta.content or "", end="")
+            yield chunk.choices[0].delta.content or ""
     
     except Exception as e:
         print(f"An error occurred while generating completions: {e}")

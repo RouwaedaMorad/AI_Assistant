@@ -1,10 +1,12 @@
-import sys
-sys.path.append('/RouwaedaMorad/AI_Assistant')
-import src
 import streamlit as st
-from src import ask_llm
+from src.groq_server import ask_llm, initialize_groq_client, load_api_key
+from groq import Groq
 
 
+client = Groq(api_key=st.secrets["GROQ"]["api_key"])
+api_key = load_api_key()  # Load the API key
+if api_key:
+    client = initialize_groq_client(api_key) 
 
 st.title("AI Assistant")
 st.write("This is a simple AI Assistant that can answer your questions.")
@@ -16,7 +18,7 @@ if st.button("Ask"):
     # Check if the question is not empty
     if question:
         # Call the ask_llm function to get the answer
-        answer = ask_llm(question)
+        answer = ask_llm(question,client)
         # Display the answer
         st.write("Answer:", answer)
     else:
