@@ -1,27 +1,67 @@
 import streamlit as st
-from src.groq_server import ask_llm, initialize_groq_client, load_api_key
-from groq import Groq
+from src.Groq_server import GroqClient
 
+# Title
+st.title("🤖 AI Assistant")
 
-client = Groq(api_key=st.secrets["GROQ"]["api_key"])
-api_key = load_api_key()  # Load the API key
-if api_key:
-    client = initialize_groq_client(api_key) 
+# Initialize the Groq client
+client = GroqClient()
 
-st.title("AI Assistant")
-st.write("This is a simple AI Assistant that can answer your questions.")
-st.write("Ask me anything!")
-# Create a text input for the user to enter their question
-question = st.text_input("Enter your question here:")
-# Create a button to submit the question
-if st.button("Ask"):
-    # Check if the question is not empty
-    if question:
-        # Call the ask_llm function to get the answer
-        answer = ask_llm(question,client)
-        # Display the answer
-        st.write("Answer:", answer)
-    else:
-        st.write("Please enter a question.")
-# Add a footer
-st.write("Made with ❤️ by Rouwaeda Morad")
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Input box at the bottom
+user_input = st.chat_input("Type your message here...")
+
+if user_input:
+    # Add user message
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    # Stream assistant response
+    with st.chat_message("assistant"):
+        response_box = st.empty()
+        full_response = ""
+        for chunk in client.ask_llm(user_input):
+            full_response += chunk
+            response_box.markdown(full_response + "▌")  # Typing effect
+        response_box.markdown(full_response)
+
+    # Add assistant response to history
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+# ✅ Footer displayed immediately **after** chat input
+st.markdown("---")
+# Fixed footer with GitHub repo link
+st.markdown("""
+    <style>
+    .fixed-footer {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        font-size: 14px;
+        color: gray;
+        z-index: 9999;
+    }
+    .fixed-footer a {
+        color: gray;
+        text-decoration: none;
+    }
+    .fixed-footer a:hover {
+        text-decoration: underline;
+    }
+    </style>
+    <div class="fixed-footer">
+        Made with ❤️ by Rouwaeda Morad · 
+        <a href="https://github.com/RouwaedaMorad/AI_Assistant" target="_blank">GitHub Repo</a>
+    </div>
+""", unsafe_allow_html=True)
